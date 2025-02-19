@@ -118,6 +118,8 @@ botonInstructores.addEventListener("click", () => {
 };
 });
 
+
+
 function datosInstructores(){
     if (localStorage.getItem("idInstructores") != null) {
     identificacionInstructores= JSON.parse(localStorage.getItem("idInstructores"));
@@ -159,6 +161,7 @@ botonPrestar.addEventListener("click", () => {
 
     let captura = -1;
     
+
     // el ciclo recorre todo el arreglo para poder buscar el nuevo equipo
     for (let i = 0; i < equipos.length; i++) {
         // si el equipo y la marca ya estan en los arreglos captura en que indice
@@ -187,25 +190,27 @@ botonPrestar.addEventListener("click", () => {
         if (cantPrestada <= stock[captura]) {
             const idPresta = document.getElementById("idPrestamo");
 
-            if(idPrestamo.value != '') {
-            let captura2 = -1
-            for (let j = 0; j < identificacionInstructores.length; j++) {
-                if (idPresta.value !== identificacionInstructores[j]) {      //se realiza un ciclo para buscar el id del instructor.
+            if(idPrestamo.value != "") {
+                // Verificar si el instructor existe validando el dato ingresado en el arreglo
+                const instructorprest = identificacionInstructores.indexOf(idPresta.value);
+                
+                if (instructorprest === -1) {
                     Swal.fire({
                         icon: "error",
                         title: "Error...",
                         text: "El instructor no existe, debe registrarse",
-                      });
+                    });
 
                     idPresta.value = "";
                     equipoPrestar.value = "";
                     marcaPrestar.value = "";
                     cantidadPrestar.value = "";
-
                 } else {
-
+                    let captura2 = -1;
                     for (let i = 0; i < equiposPrestados.length; i++) {
-                        if (idPrestamo.value == instructoresPrestan[i] && nombrePrestamo.value == equiposPrestados[i] && marcaPrestamo.value == marcasPrestadas[i]) {
+                        if (idPrestamo.value == instructoresPrestan[i] && 
+                            nombrePrestamo.value == equiposPrestados[i] && 
+                            marcaPrestamo.value == marcasPrestadas[i]) {
                             captura2 = i;
                         };
                     };
@@ -228,29 +233,28 @@ botonPrestar.addEventListener("click", () => {
 
                     } else {
                         cantidadPrestada[captura2] += cantPrestada;
-                        localStorage.setItem("cantPrestada", JSON.stringify(cantidadPrestada));    // se actualiza la cantidad prestada en el local storage. No es necesario declararla en otra función, ya que se puede acceder a ella en cualquier parte del código.
+                        localStorage.setItem("cantPrestada", JSON.stringify(cantidadPrestada));
                         idPresta.value = "";
                         equipoPrestar.value = "";
                         marcaPrestar.value = "";
                         cantidadPrestar.value = "";
                     };
                     stock[captura] -= cantPrestada;
-                    localStorage.setItem("Stock", JSON.stringify(stock)); // se actualiza la cantidad prestada en el local storage. No es necesario declararla en otra función, ya que se puede acceder a ella en cualquier parte del código.
+                    localStorage.setItem("Stock", JSON.stringify(stock));
                 };
-            };
-        }else{
+            } else {
                 Swal.fire({
                     icon: "error",
                     title: "Error...",
                     text: "Debe llenar todos los campos",
-                  });
+                });
             };
         } else {
             Swal.fire({
                 icon: "error",
                 title: "Error...",
                 text: "No hay cantidad disponible",
-              });
+            });
             nombrePrestamo.value = "";            //se llamda de este modo cuando las constantes están fuera de alcance, por el Id.
             marcaPrestamo.value = "";
             cantidadPrestamo.value = "";
@@ -380,13 +384,18 @@ botonDevolucion.addEventListener("click", () => {
                 localStorage.setItem("cantPrestada", JSON.stringify(cantidadPrestada));
                 
             }
+            // Buscar el índice correcto en el array de stock
+            let stockIndex = -1;
             for (let i = 0; i < equipos.length; i++) {
-                // si el equipo y la marca ya estan en los arreglos captura en que indice
-                if (nombresEquiposDev[captura] == equipos[i] && marcasDev[captura] == marcas[i]) { // se debe colocar la captura para que no sume en los demás arreglos
-                    stock[captura] += cantDevuelta;
-                    localStorage.setItem("Stock", JSON.stringify(stock)); // Guardar el stock actualizado
-                };
-            };
+                if (nombresEquiposDev[captura] == equipos[i] && marcasDev[captura] == marcas[i]) {
+                    stockIndex = i;
+                }
+            }
+            
+            if (stockIndex !== -1) {
+                stock[stockIndex] += cantDevuelta;
+                localStorage.setItem("Stock", JSON.stringify(stock)); // Guardar el stock actualizado
+            }
 
         } else {
             Swal.fire({
